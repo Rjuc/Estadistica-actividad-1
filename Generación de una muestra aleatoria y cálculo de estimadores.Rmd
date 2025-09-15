@@ -1,0 +1,271 @@
+---
+title: "Generación de Muestras Aleatorias y Cálculo de Estimadores Estadísticos"
+author: "Ricardo Urueta"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    toc: true
+    toc_depth: '2'
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
+library("random")
+```
+
+# Generación de Muestras Aleatorias
+
+```{r muestras}
+# Muestra X: 20 valores entre 0 y 1
+X <- randomNumbers(n=20, col=1, min=0, max=1000)
+X <- X/1000
+
+print("Muestra X (20 valores entre 0 y 1):")
+matrix(X, ncol=5, byrow=TRUE)
+
+# Muestra Y: 50 valores enteros entre 10 y 100
+Y <- randomNumbers(n=50, col=1, min=10, max=100)
+
+print("Muestra Y (50 valores enteros entre 10 y 100):")
+matrix(Y, ncol=5, byrow=TRUE)
+```
+
+# Cálculo de Estimadores con Funciones de R
+
+## Estadísticos de la Muestra X
+
+```{r estadisticos_x}
+# Tamaño de la muestra X
+n_X <- length(X)
+print(paste("n_X =", n_X))
+
+# Media
+Media_X <- mean(X)
+print(paste("Media_X =", Media_X))
+
+# Cuasivarianza
+cuasivarianza_X <- var(X)
+print(paste("Cuasivarianza_X =", cuasivarianza_X))
+
+# Cuasidesviación típica
+cuasidt_X <- sd(X)
+print(paste("Cuasidesviación típica_X =", cuasidt_X))
+
+# Varianza
+varianza_X <- var(X) * (n_X-1)/n_X
+print(paste("Varianza_X =", varianza_X))
+
+# Desviación típica
+dt_X <- sqrt(varianza_X)
+print(paste("Desviación típica_X =", dt_X))
+```
+
+## Estadísticos de la Muestra Y
+
+```{r estadisticos_y}
+# Tamaño de la muestra Y
+n_Y <- length(Y)
+print(paste("n_Y =", n_Y))
+
+# Media
+Media_Y <- mean(Y)
+print(paste("Media_Y =", Media_Y))
+
+# Cuasivarianza
+cuasivarianza_Y <- var(Y)
+print(paste("Cuasivarianza_Y =", cuasivarianza_Y))
+
+# Cuasidesviación típica
+cuasidt_Y <- sd(Y)
+print(paste("Cuasidesviación típica_Y =", cuasidt_Y))
+
+# Varianza
+varianza_Y <- var(Y) * (n_Y-1)/n_Y
+print(paste("Varianza_Y =", varianza_Y))
+
+# Desviación típica
+dt_Y <- sqrt(varianza_Y)
+print(paste("Desviación típica_Y =", dt_Y))
+```
+
+# Cálculos Manuales Paso a Paso (Muestra X)
+
+## Media Aritmética Manual
+
+```{r media_manual}
+# Suma de todos los valores
+suma_total <- sum(X)
+print(paste("Σxi =", suma_total))
+
+# División entre n
+media_manual <- suma_total / n_X
+print(paste("x̄ = Σxi/n =", suma_total, "/", n_X, "=", media_manual))
+```
+
+## Varianza y Cuasivarianza Manual
+
+```{r varianzas_manual}
+# Desviaciones respecto a la media
+desviaciones <- X - media_manual
+
+# Elevar al cuadrado
+desviaciones_cuadrado <- desviaciones^2
+
+# Sumar las desviaciones al cuadrado
+suma_desv_cuadrado <- sum(desviaciones_cuadrado)
+print(paste("Σ(xi - x̄)² =", suma_desv_cuadrado))
+
+# Varianza con denominador n
+varianza_manual <- suma_desv_cuadrado / n_X
+print(paste("Varianza σ² =", suma_desv_cuadrado, "/", n_X, "=", varianza_manual))
+
+# Cuasivarianza con denominador n-1
+cuasivarianza_manual <- suma_desv_cuadrado / (n_X - 1)
+print(paste("Cuasivarianza S² =", suma_desv_cuadrado, "/", n_X-1, "=", cuasivarianza_manual))
+```
+
+## Desviaciones Típicas Manual
+
+```{r desviaciones_manual}
+# Desviación típica
+dt_manual <- sqrt(varianza_manual)
+print(paste("Desviación típica σ = √", varianza_manual, "=", dt_manual))
+
+# Cuasidesviación típica
+cuasidt_manual <- sqrt(cuasivarianza_manual)
+print(paste("Cuasidesviación típica S = √", cuasivarianza_manual, "=", cuasidt_manual))
+```
+
+## Tabla del Proceso de Cálculo
+
+```{r tabla_proceso}
+# Tabla detallada para los primeros 10 valores
+tabla_proceso <- data.frame(
+  i = 1:10,
+  xi = X[1:10],
+  "xi - x̄" = desviaciones[1:10],
+  "(xi - x̄)²" = desviaciones_cuadrado[1:10],
+  check.names = FALSE
+)
+
+print(tabla_proceso)
+print(paste("... (10 valores más)"))
+print(paste("Suma total de (xi - x̄)²:", suma_desv_cuadrado))
+```
+
+# Comparación de Resultados (Muestra X)
+
+```{r comparacion}
+# Tabla comparativa
+comparacion <- data.frame(
+  Estadístico = c("Media", "Varianza σ²", "Desviación típica σ", 
+                  "Cuasivarianza S²", "Cuasidesviación típica S"),
+  "Funciones R" = c(Media_X, varianza_X, dt_X, cuasivarianza_X, cuasidt_X),
+  "Cálculo Manual" = c(media_manual, varianza_manual, dt_manual, 
+                       cuasivarianza_manual, cuasidt_manual),
+  Diferencia = c(abs(Media_X - media_manual),
+                 abs(varianza_X - varianza_manual),
+                 abs(dt_X - dt_manual),
+                 abs(cuasivarianza_X - cuasivarianza_manual),
+                 abs(cuasidt_X - cuasidt_manual)),
+  check.names = FALSE
+)
+
+print(comparacion)
+```
+
+[PLACEHOLDER: Analiza por qué las diferencias son prácticamente cero]
+
+# Verificación de Relaciones Matemáticas
+
+```{r relaciones}
+# Relación entre varianza y cuasivarianza
+factor_var <- (n_X - 1) / n_X
+verificacion_var <- cuasivarianza_manual * factor_var
+print(paste("σ² = S² × (n-1)/n"))
+print(paste(varianza_manual, "=", cuasivarianza_manual, "×", factor_var))
+print(paste("Verificación:", varianza_manual, "≈", verificacion_var))
+
+# Relación entre desviaciones típicas
+factor_dt <- sqrt(factor_var)
+verificacion_dt <- cuasidt_manual * factor_dt
+print(paste("σ = S × √((n-1)/n)"))
+print(paste(dt_manual, "=", cuasidt_manual, "×", factor_dt))
+print(paste("Verificación:", dt_manual, "≈", verificacion_dt))
+```
+
+[PLACEHOLDER: Explica la corrección de Bessel]
+
+# Análisis Adicional
+
+```{r analisis_adicional}
+# Coeficiente de Variación para ambas muestras
+CV_X <- (cuasidt_X / Media_X) * 100
+CV_Y <- (cuasidt_Y / Media_Y) * 100
+
+print(paste("Coeficiente de Variación X:", round(CV_X, 2), "%"))
+print(paste("Coeficiente de Variación Y:", round(CV_Y, 2), "%"))
+
+# Rangos
+rango_X <- max(X) - min(X)
+rango_Y <- max(Y) - min(Y)
+
+print(paste("Rango X:", rango_X))
+print(paste("Rango Y:", rango_Y))
+```
+
+[PLACEHOLDER: Interpreta los coeficientes de variación]
+
+# Comparación: Aleatorio vs Pseudoaleatorio
+
+```{r comparacion_metodos}
+# Generar muestra pseudoaleatoria
+set.seed(123)
+X_pseudo <- runif(20, min=0, max=1)
+
+# Estadísticos comparativos
+print(paste("Media (aleatorio):", mean(X)))
+print(paste("Media (pseudoaleatorio):", mean(X_pseudo)))
+print(paste("Varianza (aleatorio):", var(X)))
+print(paste("Varianza (pseudoaleatorio):", var(X_pseudo)))
+```
+
+[PLACEHOLDER: Comenta las diferencias]
+
+# Conclusiones
+
+[PLACEHOLDER: Conclusiones sobre los resultados obtenidos]
+
+# Referencias
+
+[PLACEHOLDER: Referencias en formato APA]
+
+# Anexo: Código Resumido
+
+```{r codigo_resumen, eval=FALSE}
+library("random")
+
+# Generación de muestras
+X <- randomNumbers(n=20, col=1, min=0, max=1000) / 1000
+Y <- randomNumbers(n=50, col=1, min=10, max=100)
+
+# Estadísticos Muestra X
+n_X <- length(X)
+Media_X <- mean(X)
+cuasivarianza_X <- var(X)
+cuasidt_X <- sd(X)
+varianza_X <- var(X) * (n_X-1)/n_X
+dt_X <- sqrt(varianza_X)
+
+# Estadísticos Muestra Y
+n_Y <- length(Y)
+Media_Y <- mean(Y)
+cuasivarianza_Y <- var(Y)
+cuasidt_Y <- sd(Y)
+varianza_Y <- var(Y) * (n_Y-1)/n_Y
+dt_Y <- sqrt(varianza_Y)
+```
